@@ -4,6 +4,7 @@ calculate the hydrogen distribution in the stainless steel
 and the outgassing rate on the vaccum
 slove the diffusion eqaution: du(x,t)/dt = D * d2u(x,t)/dx2 = g(x, t)
 u(t=0,x)=C0, u(t,x=0)=S0, u(t,x=L)=S1'''
+# PV = nRT (pa, m**3, mol, J/mol*K, K)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,7 +80,9 @@ def main():
     t = np.arange(0, time)
     T = np.array([373, 523, 673, 873, 1073, 1223])
     D = D_0 * np.exp(-E_D / (R * T))
-    S1 = 1.336 * np.exp(-0.918 * 10**3 / T) * np.sqrt(3.8 * 10**(-4))
+    S1 = 1.336 * np.sqrt(760) * np.exp(-0.918 * 10**3 / T) \
+        * np.sqrt(3.8 * 10**(-4))
+    print(S1)
     S0 = 0
     C0 = 5 * S1
     q_data = T * np.linspace(0, time, time).reshape(time, 1)
