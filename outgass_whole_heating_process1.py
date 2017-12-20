@@ -103,6 +103,7 @@ def main():
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($C_0$)')
     plt.title('Thickness = 0.3 cm')
+    plt.savefig('outgassing', format='pdf')
 
     plt.figure()
     plt.plot(x, u_data[0, :], x, u_data[10, :], x, u_data[100, :], x, u_data[
