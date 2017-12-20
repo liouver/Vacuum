@@ -1,86 +1,74 @@
-''' Create on Nov 2017
-@ author: Wei
+''' Create on Dec 2017 @ author: Wei
 calculate the hydrogen distribution in the stainless steel
 and the outgassing rate on the vaccum
 slove the diffusion eqaution: du(x,t)/dt = D * d2u(x,t)/dx2 = g(x, t)
-u(t=0,x)=C0, u(t,x=0)=S0, u(t,x=L)=S1'''
+u(t=0,x)=C0, u(t,x=0)=0, u(t,x=L)=S'''
+# PV = nRT (pa, m**3, mol, J/mol*K, K)
+# Ref: J. Vac. Sci. Technol. A 16, 188 (1998)
+# Ref: J. Vac. Sci. Technol. A 13, 545 (1995)
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-E_D = 60.3 * 10**(3)  # J/mol the bingding energy of absorption atomic hydrogen
-D_0 = 0.0122  # cm**2/s  diffussion constant
+E_D = 54 * 10**(3)  # J/mol the bingding energy of absorption atomic hydrogen
+D_0 = 0.0089  # cm**2/s  diffussion constant
 R = 8.314  # J/mol*K  universal gas constant
-L = 0.3  # cm thickness of stainless steel
 
+L = 0.3  # cm thickness of stainless steel
 N = 301  # number of subdivisions
 x = np.linspace(0, L, N)
 h = x[1] - x[0]  # discretisation stepsize in x - direction
-C0 = 1
-S0 = 0
-S1 = 0.1
-dt = 0.01  # step size or time
+dt = 0.005  # step size or time
+# K = 4 * 10**(-23)  # cm**4/(atom * s)
 
 
-def compute_g(u, D, h):
+def compute_u_time(u, D, h, dt, K, S):
     """ given a u (x , t ) in array , compute g (x , t )= D * d ^2 u / dx ^2
     using central differences with spacing h ,
-    and return g (x , t ). """
+    and return g (x , t ).
+    Then compute the solution for u after t, u = u + g * dt"""
+    # # # boundary condtion
+    u[0] = (-D + np.sqrt(D**2 + 4 * D * K * h * u[1])) / (2 * K * h)
+    u[-1] = (-D + np.sqrt(D**2 + 4 * D * K * h * (u[-2] - S))) / (2 * K * h)\
+        + S
+    # # # within stainless steel
     d2u_dx2 = np.zeros(u. shape, np . float)
     for i in range(1, len(u) - 1):
         d2u_dx2[i] = (u[i + 1] - 2 * u[i] + u[i - 1]) / h ** 2
-    # special cases at boundary : assume Neuman boundary
-    # conditions , i . e . no change of u over boundary
-    # so that u [0] - u [ -1]=0 and thus u [ -1]= u [0]
-    # i = 0
-    # d2u_dx2[i] = (u[i + 1] - 2 * u[i] + u[i]) / h ** 2
-    # same at other end so that u [N -1] - u [ N ]=0
-    # and thus u [ N ]= u [N -1]
-    # i = len(u) - 1
-    # d2u_dx2[i] = (u[i] - 2 * u[i] + u[i - 1]) / h ** 2
-    return D * d2u_dx2
-
-
-def compute_outgass(u, D, h):
-    du_dx_0 = (u[1] - u[0]) / (2 * h)
-    return D * du_dx_0
-
-
-def advance_time(u, g, dt):
-    """ Given the array u , the rate of change array g ,
-    and a timestep dt , compute the solution for u
-    after t , using simple Euler method . """
-    u = u + dt * g
+    for i in range(1, len(u) - 1):
+        u[i] = u[i] + D * d2u_dx2[i] * dt
     return u
 
 
-def time_dependent_outgass(D, time):
+def compute_concentration(D, time, C0, K, S):
     ''' Given the time to be calculated, compute the outgassing rate q(t),
      and the hydrogen concentration u(x ,t) '''
     u = C0 * np.ones(np.size(x))
-    u[0] = S0
-    u[-1] = S1
-    Dt = 1
-    steps = Dt / dt
-    u_line = np.arange(0, int(time / Dt)).reshape(int(time / Dt), 1)
+    steps = 1 / dt
+    u_line = np.arange(0, time).reshape(time, 1)
     u_data = u * u_line
-    q = []
-    d = D[0]
-    for i in range(int(time / Dt)):
+    for i in range(time):
         d = D[i]
+        k = K[i]
+        s = S[i]
         for j in range(int(steps)):
-            g = compute_g(u, d, h)
-            u = advance_time(u, g, dt)
-        q.append(compute_outgass(u, d, h))
+            u = compute_u_time(u, d, h, dt, k, s)
         u_data[i, :] = u
-    return q, u_data
+    return u_data
+
+
+def compute_outgass_T(u, D, time, T):
+    # q_data = np.linspace(0, time, time)
+    q_data = D * (u[:, 1] - u[:, 0]) / h  # atom/(s*cm**2)
+    q_data = q_data * R * T / (133.322 * 6.022 * 10**20)
+    return q_data
 
 
 def set_temperature(time):
     T = np.zeros(time)
-    t1 = 3000
-    t2 = 7800
-    T0 = 298
+    t1 = 14400
+    t2 = 28800
+    T0 = 297
     T1 = 1223
     for i in np.arange(0, t1):
         T[i] = T0 + (T1 - T0) * i / t1
@@ -91,27 +79,61 @@ def set_temperature(time):
     return T
 
 
-def main():
-    time = 10001
-    t = np.arange(0, time)
-    T = set_temperature(time)
-    D = D_0 * np.exp(-E_D / (R * T))
-    q, u_data = time_dependent_outgass(D, time)
-
+def plot_outgassing(t, q_data):
     plt.figure()
-    plt.semilogy(t, q)
+    plt.loglog(t, q_data)
     plt.xlabel('Time (s)')
-    plt.ylabel('Outgassing rate ($C_0$)')
+    plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
+    plt.savefig('outgassing_time', format='pdf')
 
+
+def plot_concentration(x, u_data):
     plt.figure()
-    plt.plot(x, u_data[0, :], x, u_data[10, :], x, u_data[100, :], x, u_data[
+    plt.plot(x, u_data[1, :], x, u_data[10, :], x, u_data[100, :], x, u_data[
              500, :], x, u_data[1000, :], x, u_data[5000, :])
-    plt.xlabel('depth (mm)')
-    plt.ylabel('Hydrogen concentration ($C_0$)')
-    plt.legend(['0 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
+    plt.xlim([0, 0.3])
+    plt.xlabel('depth (cm)')
+    plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
+    plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Temperature = 950$^\circ$')
+    plt.savefig('H_concentration1', format='pdf')
+    plt.figure()
+    plt.plot(x, u_data[5000, :], x, u_data[10000, :], x, u_data[40000, :],
+             x, u_data[80000, :], x, u_data[100000, :])
+    plt.xlim([0, 0.3])
+    plt.xlabel('depth (cm)')
+    plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
+    plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
+               loc='best', fontsize=12, frameon=False)
+    plt.title('Temperature = 950$^\circ$')
+    plt.savefig('H_concentration2', format='pdf')
+
+
+def main():
+    time = 44 * 10**3 + 1
+    t = np.arange(0, time)
+    T = set_temperature(time)
+
+    #  diffusion constant, Ref: J. Nuclear Materials 128, 622 (1984)
+    #  Ref: Vacuum 69 (2003) 501–512, IJNE 32, 100 (2007)
+    D = D_0 * np.exp(-E_D / (R * T))
+    #  recombination constant, Ref: J. Nuclear Materials 128, 622 (1984)
+    K = 1.47127 * 10**(-20) * np.exp(-5996.137 / T)
+    #  solubility, Ref: book-'Vacuum technology'; IJNE 32, 100 (2007)
+    S = 1.336 * np.sqrt(760) * np.exp(-0.918 * 10**3 / T) \
+        * np.sqrt(3.8 * 10**(-4))
+    S = S * 133.322 * 6.022 * 10**17 / (273 * 8.314)
+    #  Initial concentration, Ref: J. Vac. Sci. Technol. A 13, 545 (1995)
+    # C0 = 0.3 torr * L @ 273 K / cm**3
+    C0 = 0.3 * 133.322 * 6.022 * 10**20 / (273 * R)  # atom/cm**3
+
+    u_data = compute_concentration(D, time, C0, K, S)  # atom/cm**3
+    q_data = compute_outgass_T(u_data, D, time, T)
+#    save_data(q_data, u_data)
+#    plot_concentration(x, u_data)
+    plot_outgassing(t, q_data)
     plt.show()
 
 

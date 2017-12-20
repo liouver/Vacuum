@@ -2,7 +2,7 @@
 calculate the hydrogen distribution in the stainless steel
 and the outgassing rate on the vaccum
 slove the diffusion eqaution: du(x,t)/dt = D * d2u(x,t)/dx2 = g(x, t)
-u(t=0,x)=C0, u(t,x=0)=S0, u(t,x=L)=S1'''
+u(t=0,x)=C0, u(t,x=0)=0, u(t,x=L)=S'''
 # PV = nRT (pa, m**3, mol, J/mol*K, K)
 # Ref: J. Vac. Sci. Technol. A 16, 188 (1998)
 # Ref: J. Vac. Sci. Technol. A 13, 545 (1995)
@@ -113,22 +113,34 @@ def plot_outgassing(t, q_data):
                 '800$^\circ$', '950$^\circ$', '100$^\circ$'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Thickness = 0.3 cm')
+    plt.savefig('outgassing_time', format='pdf')
 
 
 def plot_concentration(x, u_data):
     plt.figure()
     plt.plot(x, u_data[1, :], x, u_data[10, :], x, u_data[100, :], x, u_data[
-             50, :], x, u_data[10, :], x, u_data[50, :])
+             500, :], x, u_data[1000, :], x, u_data[5000, :])
     plt.xlim([0, 0.3])
     plt.xlabel('depth (cm)')
     plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
     plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Temperature = 950$^\circ$')
+    plt.savefig('H_concentration1', format='pdf')
+    plt.figure()
+    plt.plot(x, u_data[5000, :], x, u_data[10000, :], x, u_data[40000, :],
+             x, u_data[80000, :], x, u_data[100000, :])
+    plt.xlim([0, 0.3])
+    plt.xlabel('depth (cm)')
+    plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
+    plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
+               loc='best', fontsize=12, frameon=False)
+    plt.title('Temperature = 950$^\circ$')
+    plt.savefig('H_concentration2', format='pdf')
 
 
 def main():
-    time = 1 * 10**2 + 1
+    time = 1 * 10**5 + 1
     t = np.arange(0, time)
     T = np.array([373, 523, 673, 873, 1073, 1223])
     #  diffusion constant, Ref: J. Nuclear Materials 128, 622 (1984)
@@ -144,8 +156,8 @@ def main():
     # C0 = 0.3 torr * L @ 273 K / cm**3
     C0 = 0.3 * 133.322 * 6.022 * 10**20 / (273 * R)  # atom/cm**3
 
-    q_data = compute_outgass_T(D, time, C0, K, S, T)
     u_data = compute_concentration(D[5], time, C0, K[5], S[5])  # atom/cm**3
+    q_data = compute_outgass_T(D, time, C0, K, S, T)
 #     u_data = u_data * R * T[5] / (133.322 * 6.022 * 10**20)  # torr*L/cm**3
 #    save_data(q_data, u_data)
     plot_outgassing(t, q_data)
