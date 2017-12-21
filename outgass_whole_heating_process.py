@@ -116,6 +116,46 @@ def plot_concentration(x, u_data):
     plt.savefig('H_concentration2', format='pdf')
 
 
+def save_data(q_data, u_data):
+    q_data = q_data * 10**10
+    len1 = np.size(q_data[:, 0])
+    N = int(20 * np.log10(len1))
+    file1 = open('outgassing.txt', 'w+')
+    var = -1
+    file1.write('%.1f ' % 0)
+    for j in range(np.size(q_data[0, :])):
+        file1.write('%.2f ' % q_data[0, j])
+    file1.write('\n')
+    for i in range(N + 1):
+        i = int(10**(i / 20))
+        if (i != var):
+            file1.write('%.1f ' % i)
+            for j in range(np.size(q_data[0, :])):
+                file1.write('%.4f ' % q_data[i, j])
+            file1.write('\n')
+        var = i
+    file1.close()
+    len2 = np.size(u_data[:, 0])
+    file2 = open('concentration.txt', 'w+')
+    file2.write('%.1f ' % 0)
+    for j in range(np.size(u_data[0, :])):
+        file2.write('%.1f ' % u_data[0, j])
+    file2.write('\n')
+    for a in range(int(np.log10(len2))):
+        for b in range(9):
+            i = (b + 1) * 10**a
+            file2.write('%.1f ' % i)
+            for j in range(np.size(u_data[0, :])):
+                file2.write('%.1f ' % u_data[i, j])
+            file2.write('\n')
+    len2 = len2 - 1
+    file2.write('%.1f' % len2)
+    for j in range(np.size(u_data[0, :])):
+        file2.write('%.1f ' % u_data[len2, j])
+    file2.write('\n')
+    file2.close()
+
+
 def main():
     time = 44 * 10**3 + 1
     t = np.arange(0, time)
