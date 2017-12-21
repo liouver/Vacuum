@@ -85,6 +85,11 @@ def plot_outgassing(t, q_data):
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
+    plt.axvline(x=14400, lw=1, c='k', ls='--')
+    plt.text(7200, 0.1 * q_data[14400], '297 K to 1223 K')
+    plt.axvline(x=28800, lw=1, c='k', ls='--')
+    plt.text(21600, 0.1 * q_data[14400], '1223 K')
+    plt.text(36000, 0.1 * q_data[14400], '1223 K to 297 K')
     plt.savefig('outgassing_time', format='pdf')
 
 
