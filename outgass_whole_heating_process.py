@@ -121,21 +121,19 @@ def plot_concentration(x, u_data):
 
 def save_data(q_data, u_data):
     q_data = q_data * 10**10
-    len1 = np.size(q_data[:, 0])
+    len1 = np.size(q_data)
     N = int(20 * np.log10(len1))
     file1_name = 'outgassing' + str(int(len1 / 10**2)) + '.txt'
     file1 = open(file1_name, 'w+')
     var = -1
     file1.write('%.1f ' % 0)
-    for j in range(np.size(q_data[0, :])):
-        file1.write('%.2f ' % q_data[0, j])
+    file1.write('%.2f ' % q_data)
     file1.write('\n')
     for i in range(N + 1):
         i = int(10**(i / 20))
         if (i != var):
             file1.write('%.1f ' % i)
-            for j in range(np.size(q_data[0, :])):
-                file1.write('%.4f ' % q_data[i, j])
+            file1.write('%.4f ' % q_data[i])
             file1.write('\n')
         var = i
     file1.close()
@@ -183,10 +181,10 @@ def main():
 
     u_data = compute_concentration(D, time, C0, K, S)  # atom/cm**3
     q_data = compute_outgass_T(u_data, D, time, T)
-    save_data(q_data, u_data)
 #    plot_concentration(x, u_data)
     plot_outgassing(t, q_data)
     plt.show()
+    save_data(q_data, u_data)
 
 
 if __name__ == '__main__':
