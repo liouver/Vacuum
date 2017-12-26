@@ -66,30 +66,33 @@ def compute_outgass_T(u, D, time, T):
 
 def set_temperature(time):
     T = np.zeros(time)
-    t1 = 14400
-    t2 = 28800
+    t1 = 1440
+    t2 = 2880
+    t3 = 4320
     T0 = 297
     T1 = 1223
     for i in np.arange(0, t1):
         T[i] = T0 + (T1 - T0) * i / t1
     for i in np.arange(t1, t2):
         T[i] = T1
-    for i in np.arange(t2, time):
-        T[i] = T1 - (T1 - T0) * (i - t2) / (time - t2)
+    for i in np.arange(t2, t3):
+        T[i] = T1 - (T1 - T0) * (i - t2) / (t3 - t2)
+    for i in np.arange(t3, time):
+        T[i] = T0
     return T
 
 
 def plot_outgassing(t, q_data):
     plt.figure()
-    plt.loglog(t, q_data)
+    plt.semilogy(t, q_data)
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
-    plt.axvline(x=14400, lw=1, c='k', ls='--')
-    plt.text(7200, 0.1 * q_data[14400], '297 K to 1223 K')
-    plt.axvline(x=28800, lw=1, c='k', ls='--')
-    plt.text(21600, 0.1 * q_data[14400], '1223 K')
-    plt.text(36000, 0.1 * q_data[14400], '1223 K to 297 K')
+    plt.axvline(x=1440, lw=1, c='k', ls='--')
+    plt.text(720, 0.1 * q_data[1440], '297 K to 1223 K')
+    plt.axvline(x=2880, lw=1, c='k', ls='--')
+    plt.text(2160, 0.1 * q_data[1440], '1223 K')
+    plt.text(3600, 0.1 * q_data[1440], '1223 K to 297 K')
     plt.savefig('outgassing_time', format='pdf')
 
 
@@ -120,7 +123,8 @@ def save_data(q_data, u_data):
     q_data = q_data * 10**10
     len1 = np.size(q_data[:, 0])
     N = int(20 * np.log10(len1))
-    file1 = open('outgassing.txt', 'w+')
+    file1_name = 'outgassing' + str(int(len1 / 10**2)) + '.txt'
+    file1 = open(file1_name, 'w+')
     var = -1
     file1.write('%.1f ' % 0)
     for j in range(np.size(q_data[0, :])):
@@ -135,8 +139,11 @@ def save_data(q_data, u_data):
             file1.write('\n')
         var = i
     file1.close()
+
+# save the concetration in the steel at t = 0,1,2...9,10,20,30...90,100,200...
     len2 = np.size(u_data[:, 0])
-    file2 = open('concentration.txt', 'w+')
+    file2_name = 'concentration' + str(int(len2 / 10**2)) + '.txt'
+    file2 = open(file2_name, 'w+')
     file2.write('%.1f ' % 0)
     for j in range(np.size(u_data[0, :])):
         file2.write('%.1f ' % u_data[0, j])
@@ -157,7 +164,7 @@ def save_data(q_data, u_data):
 
 
 def main():
-    time = 44 * 10**3 + 1
+    time = 45 * 10**2 + 1
     t = np.arange(0, time)
     T = set_temperature(time)
 
@@ -176,7 +183,7 @@ def main():
 
     u_data = compute_concentration(D, time, C0, K, S)  # atom/cm**3
     q_data = compute_outgass_T(u_data, D, time, T)
-#    save_data(q_data, u_data)
+    save_data(q_data, u_data)
 #    plot_concentration(x, u_data)
     plot_outgassing(t, q_data)
     plt.show()
