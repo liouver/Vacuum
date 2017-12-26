@@ -66,9 +66,9 @@ def compute_outgass_T(u, D, time, T):
 
 def set_temperature(time):
     T = np.zeros(time)
-    t1 = 1440
-    t2 = 2880
-    t3 = 4320
+    t1 = 14400
+    t2 = 28800
+    t3 = 43200
     T0 = 297
     T1 = 1223
     for i in np.arange(0, t1):
@@ -88,11 +88,11 @@ def plot_outgassing(t, q_data):
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
-    plt.axvline(x=1440, lw=1, c='k', ls='--')
-    plt.text(720, 0.1 * q_data[1440], '297 K to 1223 K')
-    plt.axvline(x=2880, lw=1, c='k', ls='--')
-    plt.text(2160, 0.1 * q_data[1440], '1223 K')
-    plt.text(3600, 0.1 * q_data[1440], '1223 K to 297 K')
+    plt.axvline(x=14400, lw=1, c='k', ls='--')
+    plt.text(7200, 0.1 * q_data[14400], '297 K to 1223 K')
+    plt.axvline(x=28800, lw=1, c='k', ls='--')
+    plt.text(21600, 0.1 * q_data[14400], '1223 K')
+    plt.text(36000, 0.1 * q_data[14400], '1223 K to 297 K')
     plt.savefig('outgassing_time', format='pdf')
 
 
@@ -164,7 +164,7 @@ def save_data(q_data, u_data):
 
 
 def main():
-    time = 45 * 10**2 + 1
+    time = 45 * 10**3 + 1
     t = np.arange(0, time)
     T = set_temperature(time)
 
