@@ -66,9 +66,9 @@ def compute_outgass_T(u, D, time, T):
 
 def set_temperature(time):
     T = np.zeros(time)
-    t1 = 14400
-    t2 = 28800
-    t3 = 43200
+    t1 = 1440
+    t2 = 2880
+    t3 = 4320
     T0 = 297
     T1 = 1223
     for i in np.arange(0, t1):
@@ -83,17 +83,21 @@ def set_temperature(time):
 
 
 def plot_outgassing(t, q_data):
+    t1 = 1440
+    t2 = 2880
+    t3 = 4320
     plt.figure()
     plt.semilogy(t, q_data)
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
-    plt.axvline(x=14400, lw=1, c='k', ls='--')
-    plt.text(7200, 0.1 * q_data[14400], '297 K to 1223 K')
-    plt.axvline(x=28800, lw=1, c='k', ls='--')
-    plt.text(21600, 0.1 * q_data[14400], '1223 K')
-    plt.text(36000, 0.1 * q_data[14400], '1223 K to 297 K')
-    plt.savefig('outgassing_time', format='pdf')
+    plt.axvline(x=t1, lw=1, c='k', ls='--')
+    plt.text(t1 / 4, 0.01 * q_data[t1], '297 K to 1223 K')
+    plt.axvline(x=t2, lw=1, c='k', ls='--')
+    plt.text((t1 + t1) / 3, 0.01 * q_data[t1], '1223 K')
+    plt.text((t2 + t3) / 3, 0.01 * q_data[t1], '1223 K to 297 K')
+    figname = 'outgassing_time' + str(len(t)) + '.pdf'
+    plt.savefig(figname, format='pdf')
 
 
 def plot_concentration(x, u_data):
@@ -106,7 +110,7 @@ def plot_concentration(x, u_data):
     plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Temperature = 950$^\circ$')
-    plt.savefig('H_concentration1', format='pdf')
+    plt.savefig('H_concentration1_1223K.pdf', format='pdf')
     plt.figure()
     plt.plot(x, u_data[5000, :], x, u_data[10000, :], x, u_data[40000, :],
              x, u_data[80000, :], x, u_data[100000, :])
@@ -116,18 +120,18 @@ def plot_concentration(x, u_data):
     plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Temperature = 950$^\circ$')
-    plt.savefig('H_concentration2', format='pdf')
+    plt.savefig('H_concentration2_1223K.pdf', format='pdf')
 
 
 def save_data(q_data, u_data):
     q_data = q_data * 10**10
     len1 = np.size(q_data)
     N = int(20 * np.log10(len1))
-    file1_name = 'outgassing' + str(int(len1 / 10**2)) + '.txt'
+    file1_name = 'outgassing' + str(len1) + '.txt'
     file1 = open(file1_name, 'w+')
     var = -1
     file1.write('%.1f ' % 0)
-    file1.write('%.2f ' % q_data)
+    file1.write('%.4f ' % q_data[0])
     file1.write('\n')
     for i in range(N + 1):
         i = int(10**(i / 20))
@@ -140,7 +144,7 @@ def save_data(q_data, u_data):
 
 # save the concetration in the steel at t = 0,1,2...9,10,20,30...90,100,200...
     len2 = np.size(u_data[:, 0])
-    file2_name = 'concentration' + str(int(len2 / 10**2)) + '.txt'
+    file2_name = 'concentration' + str(len2) + '.txt'
     file2 = open(file2_name, 'w+')
     file2.write('%.1f ' % 0)
     for j in range(np.size(u_data[0, :])):
@@ -162,7 +166,7 @@ def save_data(q_data, u_data):
 
 
 def main():
-    time = 45 * 10**3 + 1
+    time = 45 * 10**2 + 1
     t = np.arange(0, time)
     T = set_temperature(time)
 
