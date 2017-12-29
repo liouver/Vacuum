@@ -20,6 +20,12 @@ x = np.linspace(0, L, N)
 h = x[1] - x[0]  # discretisation stepsize in x - direction
 dt = 0.005  # step size or time
 # K = 4 * 10**(-23)  # cm**4/(atom * s)
+time = 45 * 10**2 + 1
+t1 = 1440
+t2 = 2880
+t3 = 4320
+T0 = 297
+T1 = 1223
 
 
 def compute_u_time(u, D, h, dt, K, S):
@@ -66,11 +72,6 @@ def compute_outgass_T(u, D, time, T):
 
 def set_temperature(time):
     T = np.zeros(time)
-    t1 = 1440
-    t2 = 2880
-    t3 = 4320
-    T0 = 297
-    T1 = 1223
     for i in np.arange(0, t1):
         T[i] = T0 + (T1 - T0) * i / t1
     for i in np.arange(t1, t2):
@@ -83,19 +84,17 @@ def set_temperature(time):
 
 
 def plot_outgassing(t, q_data):
-    t1 = 1440
-    t2 = 2880
-    t3 = 4320
     plt.figure()
     plt.semilogy(t, q_data)
     plt.xlabel('Time (s)')
     plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
     plt.title('Thickness = 0.3 cm')
-    plt.axvline(x=t1, lw=1, c='k', ls='--')
-    plt.text(t1 / 4, 0.01 * q_data[t1], '297 K to 1223 K')
-    plt.axvline(x=t2, lw=1, c='k', ls='--')
-    plt.text((t1 + t1) / 3, 0.01 * q_data[t1], '1223 K')
-    plt.text((t2 + t3) / 3, 0.01 * q_data[t1], '1223 K to 297 K')
+    plt.grid(True, which='major', axis='both', ls='-')
+    plt.axvline(x=t1, lw=1, c='r', ls='--')
+    plt.text((t1 / 6), 0.01 * q_data[t1], '297 K to 1223 K')
+    plt.axvline(x=t2, lw=1, c='r', ls='--')
+    plt.text((t1 + (t2 - t1) / 3), 0.01 * q_data[t1], '1223 K')
+    plt.text((t2 + (t3 - t2) / 3), 0.01 * q_data[t1], '1223 K to 297 K')
     figname = 'outgassing_time' + str(len(t)) + '.pdf'
     plt.savefig(figname, format='pdf')
 
@@ -126,7 +125,7 @@ def plot_concentration(x, u_data):
 def save_data(q_data, u_data):
     q_data = q_data * 10**10
     len1 = np.size(q_data)
-    N = int(20 * np.log10(len1))
+    N = int(100 * np.log10(len1))
     file1_name = 'outgassing' + str(len1) + '.txt'
     file1 = open(file1_name, 'w+')
     var = -1
@@ -134,7 +133,7 @@ def save_data(q_data, u_data):
     file1.write('%.4f ' % q_data[0])
     file1.write('\n')
     for i in range(N + 1):
-        i = int(10**(i / 20))
+        i = int(10**(i / 100))
         if (i != var):
             file1.write('%.1f ' % i)
             file1.write('%.4f ' % q_data[i])
@@ -166,7 +165,6 @@ def save_data(q_data, u_data):
 
 
 def main():
-    time = 45 * 10**2 + 1
     t = np.arange(0, time)
     T = set_temperature(time)
 
@@ -185,10 +183,10 @@ def main():
 
     u_data = compute_concentration(D, time, C0, K, S)  # atom/cm**3
     q_data = compute_outgass_T(u_data, D, time, T)
+    save_data(q_data, u_data)
 #    plot_concentration(x, u_data)
     plot_outgassing(t, q_data)
     plt.show()
-    save_data(q_data, u_data)
 
 
 if __name__ == '__main__':
