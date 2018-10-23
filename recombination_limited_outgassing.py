@@ -32,7 +32,7 @@ def compute_u_time(u, D, h, dt, K, S):
     u[-1] = (-D + np.sqrt(D**2 + 4 * D * K * h * (u[-2] - S))) / (2 * K * h)\
         + S
     # # # within stainless steel
-    d2u_dx2 = np.zeros(u. shape, np . float)
+    d2u_dx2 = np.zeros(u.shape, np.float)
     for i in range(1, len(u) - 1):
         d2u_dx2[i] = (u[i + 1] - 2 * u[i] + u[i - 1]) / h ** 2
     for i in range(1, len(u) - 1):
@@ -108,9 +108,9 @@ def plot_outgassing(t, q_data):
     plt.loglog(t, q_data[:, 0], t, q_data[:, 1], t, q_data[:, 2],
                t, q_data[:, 3], t, q_data[:, 4], t, q_data[:, 5])
     plt.xlabel('Time (s)')
-    plt.ylabel('Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
-    plt.legend(['100$^\circ$', '250$^\circ$', '400$^\circ$', '600$^\circ$',
-                '800$^\circ$', '950$^\circ$', '100$^\circ$'],
+    plt.ylabel(r'Outgassing rate ($torr \cdot L \cdot s^{-1} \cdot cm^{-2}$)')
+    plt.legend([r'100$^\circ$', r'250$^\circ$', r'400$^\circ$', r'600$^\circ$',
+                r'800$^\circ$', r'950$^\circ$', r'100$^\circ$'],
                loc='best', fontsize=12, frameon=False)
     plt.title('Thickness = 0.3 cm')
     plt.savefig('outgassing_time', format='pdf')
@@ -122,26 +122,26 @@ def plot_concentration(x, u_data):
              500, :], x, u_data[1000, :], x, u_data[5000, :])
     plt.xlim([0, 0.3])
     plt.xlabel('depth (cm)')
-    plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
+    plt.ylabel(r'Hydrogen concentration ($atom \cdot cm^{-3}$)')
     plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
-    plt.title('Temperature = 950$^\circ$')
+    plt.title(r'Temperature = 950$^\circ$')
     plt.savefig('H_concentration1', format='pdf')
     plt.figure()
     plt.plot(x, u_data[5000, :], x, u_data[10000, :], x, u_data[40000, :],
              x, u_data[80000, :], x, u_data[100000, :])
     plt.xlim([0, 0.3])
     plt.xlabel('depth (cm)')
-    plt.ylabel('Hydrogen concentration ($atom \cdot cm^{-3}$)')
+    plt.ylabel(r'Hydrogen concentration ($atom \cdot cm^{-3}$)')
     plt.legend(['1 s', '10 s', '100 s', '500 s', '1000 s', '5000 s'],
                loc='best', fontsize=12, frameon=False)
-    plt.title('Temperature = 950$^\circ$')
+    plt.title(r'Temperature = 950$^\circ$')
     plt.savefig('H_concentration2', format='pdf')
 
 
 def main():
-    time = 1 * 10**5 + 1
-    t = np.arange(0, time)
+    time = 28801
+    t = np.arange(0, time, 10)
     T = np.array([373, 523, 673, 873, 1073, 1223])
     #  diffusion constant, Ref: J. Nuclear Materials 128, 622 (1984)
     #  Ref: Vacuum 69 (2003) 501–512, IJNE 32, 100 (2007)

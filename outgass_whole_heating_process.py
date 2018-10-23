@@ -20,10 +20,10 @@ x = np.linspace(0, L, N)
 h = x[1] - x[0]  # discretisation stepsize in x - direction
 dt = 0.005  # step size or time
 # K = 4 * 10**(-23)  # cm**4/(atom * s)
-time = 45 * 10**2 + 1
-t1 = 1440
-t2 = 2880
-t3 = 4320
+time = 30000
+t1 = 3600
+t2 = 25200
+t3 = 28800
 T0 = 297
 T1 = 1223
 
@@ -165,7 +165,7 @@ def save_data(q_data, u_data):
 
 
 def main():
-    t = np.arange(0, time)
+    t = np.arange(0, time, 10)
     T = set_temperature(time)
 
     #  diffusion constant, Ref: J. Nuclear Materials 128, 622 (1984)
