@@ -14,7 +14,7 @@ E_D = 60.3 * 10**(3)  # J/mol the bingding energy of absorption atomic hydrogen
 D_0 = 0.0122  # cm**2/s  diffussion constant
 R = 8.314  # J/mol*K  universal gas constant
 # T = np.linspace(285, 1225, 941)  # K heat temperature
-L = 2  # cm thickness of stainless steel
+L = 0.3  # cm thickness of stainless steel
 
 
 def f1(k, t):
@@ -49,7 +49,7 @@ def sigma_func(f, n, args=()):
 
 
 def main():
-    t = np.arange(0, 28801, 10)
+    t = np.arange(0, 28801, 1)
     x = np.arange(0, L + 0.01, 0.01).reshape(int(L / 0.01 + 1), 1)
     T = np.array([373, 523, 673, 873, 1073, 1223]).reshape(6, 1)
     D = D_0 * np.exp(-E_D / (R * T))
@@ -69,16 +69,16 @@ def main():
     plt.legend([r'100$^\circ$', r'250$^\circ$', r'400$^\circ$', r'600$^\circ$',
                 r'800$^\circ$', r'950$^\circ$'], loc='best',
                fontsize=12, frameon=False)
-    plt.title('Thickness = %d cm' % L)
+    plt.title('Thickness = %.1f cm' % L)
 
     plt.figure()
-    plt.plot(x, c0[:, 1], x, c0[:, 360], x, c0[:, 720], x, c0[:, 1440],
-             x, c0[:, 2160], x, c0[:, 2880])
+    plt.plot(x, c0[:, 1], x, c0[:, 3600], x, c0[:, 7200], x, c0[:, 14400],
+             x, c0[:, 21600], x, c0[:, 28800])
     plt.xlabel('depth (cm)')
     plt.ylabel('Hydrogen concentration ($C_0$)')
-    plt.legend(['10 s', '1 h', '2 h', '4 h', '6 h', '8 h'],
+    plt.legend(['1 s', '1 h', '2 h', '4 h', '6 h', '8 h'],
                loc='center', fontsize=12, frameon=False)
-    plt.title(r'Temperature = %d$^\circ$' % (T[Ti] - 273))
+    plt.title(r'Temperature = %.0f$^\circ$' % (T[Ti] - 273))
     plt.show()
 
 
